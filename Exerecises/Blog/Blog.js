@@ -31,8 +31,8 @@ db.users.inserMany([
     name: "cola",
     firstName: "Francesco",
     lastName: "Cola",
-    hobbies: "guardare i codici altrui", //noSQL
-    age: 21,
+    hobbie: "guardare i codici altrui", //noSQL
+    age: 16,
     email: "codicialtri@gamil.com",
   },
 ]);
