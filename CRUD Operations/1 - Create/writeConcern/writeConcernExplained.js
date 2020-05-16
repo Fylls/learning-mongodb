@@ -28,3 +28,8 @@ example2 = {
 // obviously setting this too low might timeout even though it would have perfectly succeeded normally and therefore
 // you should know what you do when you set this timeout value because if you set it to a very low number,
 // you might fail a lot even though there is no actual problem, just some small latency.
+
+// if you set JOURNAL (j:)
+
+// => slow speed
+// => more security
