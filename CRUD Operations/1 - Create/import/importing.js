@@ -13,3 +13,5 @@ what type of document is it?
 if collection already exists, will be overwritten
 
 */
+
+// mongoimport data.json -d movieData -c movies --jsonArray --drop
