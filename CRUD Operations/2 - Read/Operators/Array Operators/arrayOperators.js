@@ -10,7 +10,7 @@
     $elemMatch:        
 */
 
-//                  A R R A Y S
+//    x              A R R A Y S
 
 // here genres is not equal to drama, IT JUST CONTAINS IT
 // drama may exist in the array but it is not the only one
@@ -42,5 +42,5 @@ db.movies.find({ genre: { $all: ["action", "thriller"] } });
 // ELEMMATCH: operator
 // condition just checking a desidered field
 db.movies.find({
-  hobbies : { $elemMatch :{ title: "Sports", frequency: {$gte: 3}},
+  hobbies: { $elemMatch: { title: "Sports", frequency: { $gte: 3 } } },
 });
