@@ -42,5 +42,5 @@ db.movies.find({ genre: { $all: ["action", "thriller"] } });
 // ELEMMATCH: operator
 // condition just checking a desidered field
 db.movies.find({
-  $and: [{ "hobbies.title": "Sports" }, { "hobbies.frequancy": { $gte: 2 } }],
+  hobbies : { $elemMatch :{ title: "Sports", frequency: {$gte: 3}},
 });
