@@ -1,10 +1,8 @@
 //                      O P E R A T O R S
 
 /*
-
-$exist:     returns all item that have a desidered field
-$type:      returns all docs with the desidered type
-
+  $exist:     returns all item that have a desidered field
+  $type:      returns all docs with the desidered type
 */
 
 db.users.insertMany([
