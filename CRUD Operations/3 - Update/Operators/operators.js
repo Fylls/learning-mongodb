@@ -1,18 +1,20 @@
 //                      O P E R A T O R S
 
 /*
-    $set:       create/updates a filed
-    $unset:     drops a field
+  $set:       create/updates a filed
+  $unset:     drops a field
 
-    $inc:       increments a value
+  $inc:       increments a value
 
-    $min:       updates value if current is lower
-    $max:       updates value if current is greater
-    $mul:       multiplies
+  $min:       updates value if current is lower
+  $max:       updates value if current is greater
+  $mul:       multiplies
 
 
-    $rename:    renames a field
-    $mul:       multiplies
+  $rename:    renames a field
+  $mul:       multiplies
+
+  $push:
 
 
 */
@@ -89,7 +91,6 @@ db.users.updateMany(
   { name: "Maria" }, // filter
   {
     //set
-
     $set: {
       age: "29",
       isSporty: true,
@@ -101,3 +102,76 @@ db.users.updateMany(
   },
   { upsert: true } // upsert
 );
+
+//                          WORKING WITH ARRAYS
+
+// wrong result since they point to all documents inside habit array
+// (conditions satisfied but NOT ON THE SAME DOCUMENT)
+db.users.find({
+  $and: [{ "hobbies.title": "Sports" }, { "hobbies.frequency": { $gte: 3 } }],
+});
+
+// correct query => elemMatch
+db.users.find({
+  hobbies: {
+    $elemMatch: { title: "Sports", frequency: { $gte: 3 } },
+  },
+});
+
+// update matched array element
+// hobbies.$ only first element match
+db.users.updateMany(
+  {
+    hobbies: {
+      $elemMatch: { title: "Sports", frequency: { $gte: 3 } },
+    },
+  }, // $ (precise array element )
+  { $set: { "hobbies.$.highFrequency": true } }
+);
+
+// update all array element
+db.users.updateMany(
+  { age: { $gt: 30 } },
+  // $[] = update all element and for each element, update frequency field
+  { $inc: { "hobbies.$[].frequency": -1 } }
+);
+
+// finding and updating specific fields
+
+db.users.find({ "hobbies.frequency": { $gt: 2 } }); //*
+globalThis.users.updateMany(
+  { "hobbies.frequency": { $gt: 2 } },
+  { $set: { "hobbies.$.[el].goodFrequency": true } },
+  { arrayFilters: [{ "el.frequency": { $gt: 2 } }] } //*
+);
+
+//* these filters don`t have to be equal
+
+//adding elements to arrays
+db.users.updateOne(
+  { name: "Maria" },
+  { $push: { hobbies: { title: "Sports", frequency: 2 } } }
+);
+
+// different syntax
+db.users.updateOne(
+  { name: "Maria" },
+  {
+    $push: {
+      hobbies: {
+        $each: [
+          { title: "Good Wine", frequency: 1 },
+          { title: "Hinking", frequency: 2 },
+        ],
+        $sort: { frequency: -1 },
+        $slice: 1,
+      },
+    },
+  }
+);
+
+// remove last
+db.updateOne({ name: "Chris" }, { $pop: { hobbies: 1 } });
+
+// push similar to sddToSet
+// IF sddToSet NO DOUPLICATE VALUES
