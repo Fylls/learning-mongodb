@@ -1,9 +1,9 @@
-//
+//index in small collection you gonna look up often
 
 ///db.contacts.explain().find({})S
 
-// 1   ascendfing
-/// -1 descending
+//  1 ascendfing
+// -1 descending
 db.contacts.createIndex({ "dob.age": 1 });
 db.contacts.dropIndex({ "dob.age": 1 });
 
@@ -24,7 +24,11 @@ db.contacts.explain().find({ "dob.age": 35 }); ///no cannot use index here, 50/5
 db.contacts.getIndexes();
 ///default _id
 
-// patial filter
+//unique, data concistency
+db.contacts.createIndex({ email: 1 }, { unique: true });
+
+// pPARTIAL INDEX
+// partial is ricky, when not requiered, collection scan
 db.contacts.createIndex(
   { "dob.age": 1 },
   { partialFilterExpression: { gender: "male" } }
@@ -35,3 +39,45 @@ db.contacts.createIndex(
   { "dob.age": 1 },
   { partialFilterExpression: { "dob.age": { $gt: 60 } } }
 );
+
+db.contacts.createIndex(
+  { "dob.age": 1 },
+  { unique: true, partialFilterExpression: { gender: { $exists: true } } }
+);
+
+// partial = index size smaller, only age of males, low impact on HDD, great speed
+
+//TIME TO LIVE INDEX TTL
+
+db.sessions.insertOne({ data: "dsjfh", createdAt: new Date() }); //ISO Date
+
+// destroys themself after some timestamp
+db.sessions.createIndex({ createAt: 1 }, { expireAfterSeconds: 10 });
+
+// covered queries
+// query full covered by index
+// max efficiency
+db.costumers
+  .explain("executionStats")
+  .find({ name: "Max" }, { _id: 0, name: 1 });
+
+// conpound index
+// order does not matter
+db.contacts.createIndex({ age: 1 }, { name: 1 });
+
+// multi-key
+db.contacts.insertOne({
+  name: "Max",
+  hobbies: ["Cooking", "Sports"],
+  addresses: [{ street: "Main Street" }],
+});
+
+db.contacts.createIndex({ hobbies: 1 });
+
+//text index
+// item in keywords
+db.products.createIndex({ description: "text" });
+db.products.find({ $text: { $search: "awesome" } }); //case insensitive - everything is stored lovercase
+
+//treated as 2 different key words
+db.products.find({ $text: { $search: "awesome book" } });
