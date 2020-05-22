@@ -74,10 +74,65 @@ db.contacts.insertOne({
 
 db.contacts.createIndex({ hobbies: 1 });
 
-//text index
+// TEXT INDEX
+
+// better than regulart expressions
 // item in keywords
 db.products.createIndex({ description: "text" });
 db.products.find({ $text: { $search: "awesome" } }); //case insensitive - everything is stored lovercase
 
 //treated as 2 different key words
 db.products.find({ $text: { $search: "awesome book" } });
+
+//search for a specific phrase
+db.products.find({ $text: { $search: '"awesome book"' } });
+
+// score,  better match
+db.products.find(
+  { $text: { $search: "awesome book" } },
+  { score: { $meta: "textScore" } }
+);
+
+// sorting by score
+db.products
+  .find(
+    { $text: { $search: "awesome book" } },
+    { score: { $meta: "textScore" } }
+  )
+  .sort({ score: { $meta: "textScore" } });
+
+// you can only have 1 text index per collection
+db.contacts.createIndex({ title: "text" }); // error
+// no such thing as text index
+db.contacts.dropIndex({ title: "text" }); //error
+
+// text index drop
+db.contacts.dropIndex("description_text");
+
+// combined text index
+// serching both in title and descrupotion with same index
+db.contacts.createIndex({ title: "text", description: "text" }); // error
+
+// word blacklist (exclude)
+// -word
+db.products.find({ $text: { $search: "red -book" } });
+
+db.productd.getIndexes();
+
+// language and weights
+db.contacts.createIndex(
+  { title: "text", descfription: "text" },
+  // config obj
+  {
+    default_lang: "italian",
+    background: true,
+    weights: { title: 1, description: 10 },
+  }
+);
+
+db.product.find(
+  {
+    $text: { $search: "sas", $language: "italian", caseSensitivity: true },
+  },
+  { score: { $meta: "textScore" } }
+);
