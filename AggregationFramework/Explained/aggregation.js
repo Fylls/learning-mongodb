@@ -75,3 +75,164 @@ db.persons.aggregate([
 
   { $sort: { totalPersons: -1 } },
 ]);
+
+// $project
+
+// same functionalities
+db.persons.find({}, { gender: 1, _id: 0 });
+db.persons.aggregate([{ $project: { _id: { gender: 1, _id: 0 } } }]);
+
+// creating new fields on the fly
+// .concat concats to string
+db.persons.aggregate([
+  {
+    $project: {
+      _id: {
+        gender: 1,
+        _id: 0,
+        email: 1,
+        location: 1,
+        fullName: {
+          $concat: [
+            { $toUpper: { $substrCP: ["$name.first", 0, 1] } }, // first letter uppercse (firstname)
+            {
+              $substrCP: [
+                "$name.first",
+                1,
+                { $subtract: [{ $strLenCP: "$name.first" }, 1] }, // rest of the firstname lowercase
+              ],
+            },
+            "", // white space
+            { $toUpper: { $substrCP: ["$name.last", 0, 1] } }, // first letter uppercase (lastname)
+            {
+              $substrCP: [
+                "$name.last",
+                1,
+                { $subtract: [{ $strLenCP: "$name.last" }, 1] }, // rest of the lastname lowercase
+              ],
+            },
+          ],
+        },
+      },
+    },
+  },
+]);
+
+// from location to geoJSON
+db.persons.aggregate([
+  {
+    $project: {
+      _id: 0,
+      name: 1,
+      email: 1,
+      location: {
+        type: "Point",
+        coordinates: [
+          {
+            $convert: {
+              input: "$location.coordinates.longitude",
+              to: "double",
+              onError: 0.0,
+              onNull: 0.0,
+            },
+          },
+          {
+            $convert: {
+              input: "$location.coordinates.latitude",
+              to: "double",
+              onError: 0.0,
+              onNull: 0.0,
+            },
+          },
+        ],
+      },
+    },
+  },
+]);
+
+//age
+db.persons.aggregate([
+  {
+    $project: {
+      _id: 0,
+      birthday: { $convert: { input: "$dob.date", to: "date" } },
+      age: "$dob.age",
+    },
+  },
+]);
+
+//all together
+db.persons.aggregate([
+  // #1 age
+  {
+    $project: {
+      _id: 0,
+      birthday: { $convert: { input: "$dob.date", to: "date" } },
+      age: "$dob.age",
+    },
+  },
+  // #2 geo
+  {
+    $project: {
+      _id: 0,
+      name: 1,
+      email: 1,
+      birthday: 1,
+      age: 1,
+      location: {
+        type: "Point",
+        coordinates: [
+          {
+            $convert: {
+              input: "$location.coordinates.longitude",
+              to: "double",
+              onError: 0.0,
+              onNull: 0.0,
+            },
+          },
+          {
+            $convert: {
+              input: "$location.coordinates.latitude",
+              to: "double",
+              onError: 0.0,
+              onNull: 0.0,
+            },
+          },
+        ],
+      },
+    },
+  },
+  // #3 name
+  {
+    $project: {
+      gender: 1,
+      _id: 0,
+      email: 1,
+      location: 1,
+      name: 1,
+      birthday: 1,
+      age: 1,
+      fullName: {
+        $concat: [
+          { $toUpper: { $substrCP: ["$name.first", 0, 1] } },
+          {
+            $substrCP: [
+              "$name.first",
+              1,
+              { $subtract: [{ $strLenCP: "$name.first" }, 1] },
+            ],
+          },
+          "",
+          { $toUpper: { $substrCP: ["$name.last", 0, 1] } },
+          {
+            $substrCP: [
+              "$name.last",
+              1,
+              { $subtract: [{ $strLenCP: "$name.last" }, 1] },
+            ],
+          },
+        ],
+      },
+    },
+  },
+]);
