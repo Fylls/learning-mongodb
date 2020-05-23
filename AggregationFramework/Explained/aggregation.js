@@ -87,32 +87,31 @@ db.persons.aggregate([{ $project: { _id: { gender: 1, _id: 0 } } }]);
 db.persons.aggregate([
   {
     $project: {
-      _id: {
-        gender: 1,
-        _id: 0,
-        email: 1,
-        location: 1,
-        fullName: {
-          $concat: [
-            { $toUpper: { $substrCP: ["$name.first", 0, 1] } }, // first letter uppercse (firstname)
-            {
-              $substrCP: [
-                "$name.first",
-                1,
-                { $subtract: [{ $strLenCP: "$name.first" }, 1] }, // rest of the firstname lowercase
-              ],
-            },
-            "", // white space
-            { $toUpper: { $substrCP: ["$name.last", 0, 1] } }, // first letter uppercase (lastname)
-            {
-              $substrCP: [
-                "$name.last",
-                1,
-                { $subtract: [{ $strLenCP: "$name.last" }, 1] }, // rest of the lastname lowercase
-              ],
-            },
-          ],
-        },
+      _id: 0,
+      gender: 1,
+      _id: 0,
+      email: 1,
+      location: 1,
+      fullName: {
+        $concat: [
+          { $toUpper: { $substrCP: ["$name.first", 0, 1] } }, // first letter uppercse (firstname)
+          {
+            $substrCP: [
+              "$name.first",
+              1,
+              { $subtract: [{ $strLenCP: "$name.first" }, 1] }, // rest of the firstname lowercase
+            ],
+          },
+          "", // white space
+          { $toUpper: { $substrCP: ["$name.last", 0, 1] } }, // first letter uppercase (lastname)
+          {
+            $substrCP: [
+              "$name.last",
+              1,
+              { $subtract: [{ $strLenCP: "$name.last" }, 1] }, // rest of the lastname lowercase
+            ],
+          },
+        ],
       },
     },
   },
@@ -155,8 +154,28 @@ db.persons.aggregate([
   {
     $project: {
       _id: 0,
-      birthday: { $convert: { input: "$dob.date", to: "date" } },
+      birthday: { $toDate: "$dob.date" },
       age: "$dob.age",
+    },
+  },
+]);
+
+// simple convert
+db.persons.aggregate([
+  {
+    $project: {
+      // birthday: { $convert: { input: "$dob.date", to: "date" } },
+      birthday: { $toDate: "$dob.date" },
+    },
+  },
+]);
+
+//iso week year
+db.persons.aggregate([
+  {
+    $project: {
+      // birthday: { $convert: { input: "$dob.date", to: "date" } },
+      birthday: { $toDate: "$dob.date" },
     },
   },
 ]);
@@ -235,4 +254,15 @@ db.persons.aggregate([
       },
     },
   },
+
+  // #4 group
+  {
+    $group: {
+      _id: { birthYear: { $isoWeekYear: "$birthdate" } },
+      numPersons: { $sum: 1 },
+    },
+  },
+
+  // #5 sort
+  { $sort: { numPersons: -1 } },
 ]);
