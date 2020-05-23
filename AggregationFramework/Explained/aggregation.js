@@ -265,4 +265,23 @@ db.persons.aggregate([
 
   // #5 sort
   { $sort: { numPersons: -1 } },
+
+  // #6 pipeline to a new collection
+  { $out: "transformedPersons" },
+]);
+
+// geo as a pipeline stage
+db.transformedPersons.createIndex({ location: "2dsphere" });
+
+db.transformedPerson.aggregate([
+  {
+    // geoner NEEDS to be the first stage in the pipeline to benfit the index
+    $geoNear: {
+      near: { type: "point", coordinates: [69, 96] },
+      maxDistance: 10000,
+      num: 10,
+      query: { gender: "male" },
+      distanceField: "distance",
+    },
+  },
 ]);

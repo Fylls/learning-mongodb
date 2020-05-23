@@ -75,9 +75,11 @@ db.frgrpiends.aggregate([
   },
 ]);
 
-// top 10 oldest people in database
+// top 10 oldest male persons in database
 db.persons.aggregate([
   //1
+  { $match: { gender: "male" } },
+  //2
   {
     $project: {
       _id: 0,
@@ -85,14 +87,16 @@ db.persons.aggregate([
       birthdate: { toDate: "$dob.date" },
     },
   },
-  //2
-  { $sort: { birthdate: 1 } },
   //3
-  { $skip: 10 },
+  { $sort: { birthdate: 1 } },
   //4
+  { $skip: 10 },
+  //5
   { $limit: 10 },
 ]);
 
 // ORDER is important
 // pipeline is processed step by step
 // sort => skip => limit
+
+//you just use right order to maximize performances
