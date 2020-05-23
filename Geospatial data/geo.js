@@ -71,7 +71,10 @@ db.area.find({
 // finding [all places within certain radious
 
 db.area.find({
-  $geoIntersects: {
-    $geometry: { type: "Point", coordinates: [123.4734356, 37.7672544] },
+  location: {
+    $geoWithin: {
+      //radians not miles
+      $geometry: { $centerSphere: [[123.4734356, 37.7672544], 1 / 6378.1] },
+    },
   },
 });
