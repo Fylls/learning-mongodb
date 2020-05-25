@@ -1,0 +1,17 @@
+need more servers.
+
+The issue here of course is this might sound logical but the servers
+
+now don't duplicate the data,
+
+they are not backups,
+
+they split the data. So server A, the one on the left let's say stores data for the same application
+
+as the other servers but a different chunk of it
+
+and that is really important to understand. With sharding, you have multiple computers who all run mongodb
+
+servers but these serverss don't work standalone but work together and split up the available
+
+data, so the data is distributed across your shards, not replicated.
