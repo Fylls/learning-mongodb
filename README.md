@@ -17,9 +17,7 @@ https://www.udemy.com/course/mongodb-the-complete-developers-guide/
 
 <br>
 
-Humongous is an American slang word coined in the 1970's, copying more proper words like tremendous or enormous.
-If you want to describe something that's so big it's hard to really measure, like the national debt or the number of cells in your body, you can use the world humongous.
-Just don't use it in a formal paper.
+Humongous is an American slang word coined in the 1970's, copying more proper words like tremendous or enormous. If you want to describe something that's so big it's hard to really measure, like the national debt or the number of cells in your body, you can use the world humongous. Just don't use it in a formal paper.
 
 <br>
 
