@@ -1,6 +1,6 @@
 <div align="center">
   
-# Workout: MongoDB
+# Learning: MongoDB
 
 <br>
 
